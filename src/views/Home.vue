@@ -1,18 +1,27 @@
 <template>
   <div class="home">
     <img alt="Vue logo" src="../assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <button v-stream:click="load$">这个是按钮</button>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from "@/components/HelloWorld.vue";
+import { switchMap, map } from "rxjs/operators";
+import { ajax } from "rxjs/ajax";
 
 export default {
   name: "home",
-  components: {
-    HelloWorld
+  domStreams: ["load$"],
+  subscriptions() {
+    const data = this.load$.pipe(
+      switchMap(() =>
+        ajax("https://api.github.com/users?per_page=5").pipe(
+          map(userResponse => userResponse)
+        )
+      )
+    );
+    return { data };
   }
 };
 </script>
