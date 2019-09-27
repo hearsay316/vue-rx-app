@@ -1,13 +1,19 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png" />
     <button v-stream:click="load$">这个是按钮</button>
+    <div>{{ name$ }}</div>
+    <img :src="image$" alt="" />
+    <ul>
+      <li v-for="(value, key, index) in data" :key="index.id">
+        {{ key }}=={{ value }}-{{ index }}
+      </li>
+    </ul>
   </div>
 </template>
-
 <script>
 // @ is an alias to /src
-import { switchMap, map } from "rxjs/operators";
+import { of } from "rxjs";
+import { switchMap, map, catchError, pluck, share } from "rxjs/operators";
 import { ajax } from "rxjs/ajax";
 
 export default {
@@ -16,12 +22,27 @@ export default {
   subscriptions() {
     const data = this.load$.pipe(
       switchMap(() =>
-        ajax("https://api.github.com/users?per_page=5").pipe(
-          map(userResponse => userResponse)
+        //http://localhost:3000/people/0
+        ajax("http://localhost:3000/people/0").pipe(
+          map(userResponse => {
+            console.log(userResponse);
+            return userResponse;
+          }),
+          catchError(err => {
+            console.log(err);
+            return of(err);
+          }),
+          pluck("response")
         )
-      )
+      ),
+      share()
     );
-    return { data };
+    const name$ = data.pipe(pluck("name"));
+    const image$ = data.pipe(
+      pluck("image"),
+      map(image => `http://localhost:3000/${image}`)
+    );
+    return { data, image$, name$ };
   }
 };
 </script>
