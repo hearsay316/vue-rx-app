@@ -1,11 +1,11 @@
 <template>
   <div id="app">
     <div id="nav">
-      <template v-for="(routr, index) of routes">
+      <template v-for="(routr, index) of routes.list">
         <router-link :to="routr.path" :key="index">
           {{ routr.name }}
         </router-link>
-        <template v-if="index < routes.length - 1">
+        <template v-if="index < routes.num">
           |
         </template>
       </template>
@@ -16,13 +16,13 @@
 <script>
 export default {
   name: "app",
-  data() {
-    return {
-      routes: []
-    };
-  },
-  mounted() {
-    this.routes = this.$router.options.routes;
+  computed: {
+    routes() {
+      return {
+        list: this.$router.options.routes,
+        num: this.$router.options.routes.length - 1
+      };
+    }
   }
 };
 </script>
