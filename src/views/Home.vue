@@ -13,7 +13,7 @@
 <script>
 // @ is an alias to /src
 import { of } from "rxjs";
-import { switchMap, map, catchError, pluck, share } from "rxjs/operators";
+import { switchMap, map, catchError, pluck } from "rxjs/operators";
 import { ajax } from "rxjs/ajax";
 
 export default {
@@ -34,8 +34,7 @@ export default {
           }),
           pluck("response")
         )
-      ),
-      share()
+      )
     );
     const name$ = data.pipe(pluck("name"));
     const image$ = data.pipe(

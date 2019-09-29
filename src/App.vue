@@ -4,6 +4,8 @@
       <router-link to="/">Home</router-link>
       |
       <router-link to="/about">About</router-link>
+      |
+      <router-link to="/slide">slide</router-link>
     </div>
     <div>{{ desc }}</div>
     <button :disabled="disAble" v-stream:click="snooze$">按钮</button>
