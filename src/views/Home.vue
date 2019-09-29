@@ -22,14 +22,11 @@ export default {
   subscriptions() {
     const data = this.load$.pipe(
       switchMap(() =>
-        //http://localhost:3000/people/0
         ajax("http://localhost:3000/people/0").pipe(
           map(userResponse => {
-            console.log(userResponse);
             return userResponse;
           }),
           catchError(err => {
-            console.log(err);
             return of(err);
           }),
           pluck("response")
