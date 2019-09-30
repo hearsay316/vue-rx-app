@@ -1,14 +1,14 @@
 <template>
   <div class="Countdown">
-    <button :disabled="disAble" v-stream:click="count$">{{ deac }}</button>
-    {{ deac }}
+    <button :disabled="isFalse" v-stream:click="count$">{{ deac }}</button>
+    {{ deac }}{{ next$ }}
   </div>
 </template>
 
 <script>
 import { of, interval, concat } from "rxjs";
 import {
-  map,
+  share,
   switchMap,
   scan,
   startWith,
@@ -21,34 +21,33 @@ export default {
   domStreams: ["count$"],
   data() {
     return {
-      deac: ""
+      deac: "",
+      isFalse: false
     };
   },
   subscriptions() {
-    let arr = ["30", "按钮"];
     let handleClick = this.count$.pipe(
       switchMap(() => interval(1000)),
-      startWith("30"),
+      startWith(30),
       scan(time => time - 1),
-      takeWhile(time => time > 0)
+      takeWhile(time => time > 0),
+      share()
     );
-    let meg = concat(handleClick, of("按钮"));
-    const user = meg.pipe(repeatWhen(() => this.count$));
-    let desc = concat(user, of("这个是ok"));
-    desc = desc.pipe(shareReplay());
-    meg.subscribe(x => {
-      if (x === "30") {
-        console.log(x === "30");
-        return (this.deac = "点击发送按钮");
+    const next$ = concat(handleClick, of("你好")).pipe(
+      repeatWhen(() => this.count$),
+      shareReplay()
+    );
+    next$.subscribe(x => {
+      console.log(x);
+      if (x === 30 || x === "你好") {
+        this.isFalse = false;
+        this.deac = "点击发送按钮";
+        return;
       }
+      this.isFalse = true;
       this.deac = x;
     });
-    let disAble = desc.pipe(
-      map(value => {
-        return !arr.includes(value);
-      })
-    );
-    return { desc, disAble };
+    return { next$ };
   }
 };
 </script>
