@@ -13,9 +13,14 @@ import {
   scan,
   startWith,
   takeWhile,
-  repeatWhen,
-  shareReplay
+  repeat,
+  shareReplay,
+  map,
+  catchError,
+  pluck
 } from "rxjs/operators";
+import { ajax } from "rxjs/ajax";
+
 export default {
   name: "Countdown",
   domStreams: ["count$"],
@@ -27,14 +32,26 @@ export default {
   },
   subscriptions() {
     let handleClick = this.count$.pipe(
-      switchMap(() => interval(1000)),
+      switchMap(() => {
+        return ajax("https://www.mxnzp.com/api/").pipe(
+          map(userResponse => {
+            console.log(userResponse);
+            return interval(1000);
+          }),
+          catchError(err => {
+            console.log(err, "err");
+            return takeWhile(() => false);
+          }),
+          pluck("response")
+        );
+      }),
       startWith(30),
       scan(time => time - 1),
       takeWhile(time => time > 0),
       share()
     );
     const next$ = concat(handleClick, of("你好")).pipe(
-      repeatWhen(() => this.count$),
+      repeat(() => handleClick()),
       shareReplay()
     );
     next$.subscribe(x => {
