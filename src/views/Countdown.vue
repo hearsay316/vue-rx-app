@@ -1,22 +1,23 @@
 <template>
   <div class="Countdown">
     <button :disabled="isFalse" v-stream:click="count$">{{ deac }}</button>
-    {{ deac }}{{ next$ }}
+    {{ deac }}
   </div>
 </template>
 
 <script>
-import { of, interval, concat } from "rxjs";
+import { of, interval } from "rxjs";
 import {
-  share,
   switchMap,
   scan,
   startWith,
   takeWhile,
   repeat,
-  shareReplay,
   catchError,
-  pluck
+  pluck,
+  exhaustMap,
+  retry,
+  take
 } from "rxjs/operators";
 import { ajax } from "rxjs/ajax";
 
@@ -31,31 +32,21 @@ export default {
   },
   subscriptions() {
     let handleClick = this.count$.pipe(
-      switchMap(() => {
-        return ajax(
-          "http://www.mxnzp.com/api/news/list?typeId=525&page=1"
-        ).pipe(
-          switchMap(userResponse => {
-            console.log(userResponse, 2222);
-            return interval(1000);
-          }),
-          catchError(err => {
-            console.log(err, "err");
-            return takeWhile(() => false);
-          }),
-          pluck("response")
-        );
-      }),
+      exhaustMap(() =>
+        ///list?typeId=525&page=1
+        ajax("http://www.mxnzp.com/api/news/list?typeId=525&page=1").pipe(
+          retry(3),
+          catchError(err => of(err).pipe(take())),
+          pluck("response"),
+          switchMap(() => interval(1000))
+        )
+      ),
       startWith(30),
       scan(time => time - 1),
-      takeWhile(time => time > 0),
-      share()
+      takeWhile(time => time > -1),
+      repeat()
     );
-    const next$ = concat(handleClick, of("你好")).pipe(
-      repeat(),
-      shareReplay()
-    );
-    next$.subscribe(x => {
+    handleClick.subscribe(x => {
       console.log(x);
       if (x === 30 || x === "你好") {
         this.isFalse = false;
@@ -65,7 +56,8 @@ export default {
       this.isFalse = true;
       this.deac = x;
     });
-    return { next$ };
+
+    return { handleClick };
   }
 };
 </script>

@@ -48,6 +48,15 @@ export default new Router({
       // which is lazy-loaded when the route is visited.
       component: () =>
         import(/* webpackChunkName: "Countdown" */ "./views/Countdown.vue")
+    },
+    {
+      path: "/pairwise",
+      name: "pairwise",
+      // route level code-splitting
+      // this generates a separate chunk (about.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () =>
+        import(/* webpackChunkName: "Countdown" */ "./views/pairwise.vue")
     }
   ]
 });
