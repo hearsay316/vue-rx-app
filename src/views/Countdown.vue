@@ -48,13 +48,13 @@ export default {
     );
     handleClick.subscribe(x => {
       console.log(x);
-      if (x === 30 || x === "你好") {
+      if (x === 30) {
         this.isFalse = false;
         this.deac = "点击发送按钮";
         return;
       }
       this.isFalse = true;
-      this.deac = x;
+      this.deac = ``;
     });
 
     return { handleClick };
