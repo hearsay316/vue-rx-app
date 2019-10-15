@@ -20,7 +20,7 @@ import {
 
 export default {
   name: "slide",
-  domstreams: [],
+
   subscriptions() {
     const key$ = fromEvent(window, "keydown").pipe(pluck("key"));
 

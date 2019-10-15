@@ -15,7 +15,6 @@ import {
   takeWhile,
   repeat,
   shareReplay,
-  map,
   catchError,
   pluck
 } from "rxjs/operators";
@@ -33,9 +32,11 @@ export default {
   subscriptions() {
     let handleClick = this.count$.pipe(
       switchMap(() => {
-        return ajax("https://www.mxnzp.com/api/").pipe(
-          map(userResponse => {
-            console.log(userResponse);
+        return ajax(
+          "http://www.mxnzp.com/api/news/list?typeId=525&page=1"
+        ).pipe(
+          switchMap(userResponse => {
+            console.log(userResponse, 2222);
             return interval(1000);
           }),
           catchError(err => {
@@ -51,7 +52,7 @@ export default {
       share()
     );
     const next$ = concat(handleClick, of("你好")).pipe(
-      repeat(() => handleClick()),
+      repeat(),
       shareReplay()
     );
     next$.subscribe(x => {
