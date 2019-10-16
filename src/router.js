@@ -57,6 +57,11 @@ export default new Router({
       // which is lazy-loaded when the route is visited.
       component: () =>
         import(/* webpackChunkName: "Countdown" */ "./views/pairwise.vue")
+    },
+    {
+      path: "/CombineLatest",
+      name: "CombineLatest",
+      component: () => import("./views/CombineLatest.vue")
     }
   ]
 });
